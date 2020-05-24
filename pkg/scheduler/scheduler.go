@@ -576,7 +576,7 @@ func (sched *Scheduler) scheduleOne(ctx context.Context) {
 		// Schedule() may have failed because the pod would not fit on any host, so we try to
 		// preempt, with the expectation that the next time the pod is tried for scheduling it
 		// will fit due to the preemption. It is also possible that a different pod will schedule
-		// into the resources that were preempted, but this is harmless.
+		// into the resources that were preempted(抢占), but this is harmless(无害).
 		if fitError, ok := err.(*core.FitError); ok {
 			if sched.DisablePreemption {
 				klog.V(3).Infof("Pod priority feature is not enabled or preemption is disabled by scheduler configuration." +

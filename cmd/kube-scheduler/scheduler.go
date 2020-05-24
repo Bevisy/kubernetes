@@ -42,6 +42,7 @@ func main() {
 	logs.InitLogs()
 	defer logs.FlushLogs()
 
+	//执行 command 中的 Run()
 	if err := command.Execute(); err != nil {
 		os.Exit(1)
 	}
