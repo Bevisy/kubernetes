@@ -255,6 +255,7 @@ func New(client clientset.Interface,
 
 	snapshot := internalcache.NewEmptySnapshot()
 
+	// 1. 创建 scheduler 的配置文件
 	configurator := &Configurator{
 		client:                   client,
 		recorderFactory:          recorderFactory,
@@ -277,11 +278,14 @@ func New(client clientset.Interface,
 
 	metrics.Register()
 
+	// 声明 scheduler 对象
 	var sched *Scheduler
 	source := options.schedulerAlgorithmSource
+	// 2. 加载默认的调度算法
 	switch {
 	case source.Provider != nil:
 		// Create the config from a named algorithm provider.
+		// 使用默认的"DefaultProvider"初始化 config
 		sc, err := configurator.createFromProvider(*source.Provider)
 		if err != nil {
 			return nil, fmt.Errorf("couldn't create scheduler using provider %q: %v", *source.Provider, err)
@@ -289,6 +293,7 @@ func New(client clientset.Interface,
 		sched = sc
 	case source.Policy != nil:
 		// Create the config from a user specified policy source.
+		// 通过启动时指定的 policy source 加载 config
 		policy := &schedulerapi.Policy{}
 		switch {
 		case source.Policy.File != nil:
