@@ -174,6 +174,7 @@ func Run(ctx context.Context, cc schedulerserverconfig.CompletedConfig, outOfTre
 
 	recorderFactory := getRecorderFactory(&cc)
 	// Create the scheduler.
+	// 1. 初始化 scheduler 对象
 	sched, err := scheduler.New(cc.Client,
 		cc.InformerFactory,
 		cc.PodInformer,
@@ -194,6 +195,7 @@ func Run(ctx context.Context, cc schedulerserverconfig.CompletedConfig, outOfTre
 	}
 
 	// Prepare the event broadcaster.
+	// 2. 启动事件广播
 	if cc.Broadcaster != nil && cc.EventClient != nil {
 		cc.Broadcaster.StartRecordingToSink(ctx.Done())
 	}
@@ -207,6 +209,7 @@ func Run(ctx context.Context, cc schedulerserverconfig.CompletedConfig, outOfTre
 	}
 
 	// Start up the healthz server.
+	// 3. 启动 http server
 	if cc.InsecureServing != nil {
 		separateMetrics := cc.InsecureMetricsServing != nil
 		handler := buildHandlerChain(newHealthzHandler(&cc.ComponentConfig, separateMetrics, checks...), nil, nil)
@@ -230,6 +233,7 @@ func Run(ctx context.Context, cc schedulerserverconfig.CompletedConfig, outOfTre
 	}
 
 	// Start all informers.
+	// 4. 启动所有 informer
 	go cc.PodInformer.Informer().Run(ctx.Done())
 	cc.InformerFactory.Start(ctx.Done())
 
@@ -237,6 +241,7 @@ func Run(ctx context.Context, cc schedulerserverconfig.CompletedConfig, outOfTre
 	cc.InformerFactory.WaitForCacheSync(ctx.Done())
 
 	// If leader election is enabled, runCommand via LeaderElector until done and exit.
+	// 5. 选举 leader
 	if cc.LeaderElection != nil {
 		cc.LeaderElection.Callbacks = leaderelection.LeaderCallbacks{
 			OnStartedLeading: sched.Run,
@@ -255,6 +260,7 @@ func Run(ctx context.Context, cc schedulerserverconfig.CompletedConfig, outOfTre
 	}
 
 	// Leader election is disabled, so runCommand inline until done.
+	// 6. 执行 sched.Run() 方法
 	sched.Run(ctx)
 	return fmt.Errorf("finished without leader elect")
 }
