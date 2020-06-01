@@ -67,6 +67,7 @@ import (
 type Option func(framework.Registry) error
 
 // NewSchedulerCommand creates a *cobra.Command object with default parameters and registryOptions
+// NewSchedulerCommand使用默认参数和RegistryOptions创建一个* cobra.Command对象
 func NewSchedulerCommand(registryOptions ...Option) *cobra.Command {
 	opts, err := options.NewOptions()
 	if err != nil {

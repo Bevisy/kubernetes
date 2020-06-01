@@ -93,7 +93,7 @@ type Scheduler struct {
 	// NextPod should be a function that blocks until the next pod
 	// is available. We don't use a channel for this, because scheduling
 	// a pod may take some amount of time and we don't want pods to get
-	// stale while they sit in a channel.
+	// stale(陈旧,过时) while they sit in a channel.
 	NextPod func() *framework.PodInfo
 
 	// Error is called if there is an error. It is passed the pod in
@@ -583,6 +583,7 @@ func (sched *Scheduler) scheduleOne(ctx context.Context) {
 	klog.V(3).Infof("Attempting to schedule pod: %v/%v", pod.Namespace, pod.Name)
 
 	// Synchronously attempt to find a fit for the pod.
+	// 同步尝试为 pod 选择一个适合的物品
 	start := time.Now()
 	state := framework.NewCycleState()
 	state.SetRecordPluginMetrics(rand.Intn(100) < pluginMetricsSamplePercent)

@@ -37,10 +37,12 @@ func main() {
 	// TODO: once we switch everything over to Cobra commands, we can go back to calling
 	// utilflag.InitFlags() (by removing its pflag.Parse() call). For now, we have to set the
 	// normalize func and add the go flag set by hand.
+	// WordSepNormalizeFunc 修改flags里面的"_"为"-"
+	// 修改从os.Args 获取的 flag，并做对应转换
 	pflag.CommandLine.SetNormalizeFunc(cliflag.WordSepNormalizeFunc)
 	// utilflag.InitFlags()
-	logs.InitLogs()
-	defer logs.FlushLogs()
+	logs.InitLogs()        // 初始化期望的 kubernetes 日志方式
+	defer logs.FlushLogs() // FlushLogs() 立即刷新日志
 
 	//执行 command 中的 Run()
 	if err := command.Execute(); err != nil {
