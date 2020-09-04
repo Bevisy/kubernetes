@@ -38,6 +38,7 @@ go_test(
         "//test/e2e/ui:go_default_library",
         "//test/e2e/windows:go_default_library",
         "//test/utils/image:go_default_library",
+        "//test/e2e/kata:go_default_library",
     ],
 )
 
@@ -118,6 +119,7 @@ filegroup(
         "//test/e2e/ui:all-srcs",
         "//test/e2e/upgrades:all-srcs",
         "//test/e2e/windows:all-srcs",
+        "//test/e2e/kata:all-srcs",
     ],
     tags = ["automanaged"],
 )
