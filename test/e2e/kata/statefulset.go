@@ -913,7 +913,7 @@ func (z *zookeeperTester) name() string {
 }
 
 func (z *zookeeperTester) deploy(ns string) *appsv1.StatefulSet {
-	z.ss = e2esset.CreateStatefulSet(z.client, zookeeperManifestPath, ns)
+	z.ss = e2esset.CreateSecureStatefulSet(z.client, zookeeperManifestPath, ns)
 	return z.ss
 }
 
@@ -951,7 +951,7 @@ func (m *mysqlGaleraTester) mysqlExec(cmd, ns, podName string) string {
 }
 
 func (m *mysqlGaleraTester) deploy(ns string) *appsv1.StatefulSet {
-	m.ss = e2esset.CreateStatefulSet(m.client, mysqlGaleraManifestPath, ns)
+	m.ss = e2esset.CreateSecureStatefulSet(m.client, mysqlGaleraManifestPath, ns)
 
 	framework.Logf("Deployed statefulset %v, initializing database", m.ss.Name)
 	for _, cmd := range []string{
@@ -991,7 +991,7 @@ func (m *redisTester) redisExec(cmd, ns, podName string) string {
 }
 
 func (m *redisTester) deploy(ns string) *appsv1.StatefulSet {
-	m.ss = e2esset.CreateStatefulSet(m.client, redisManifestPath, ns)
+	m.ss = e2esset.CreateSecureStatefulSet(m.client, redisManifestPath, ns)
 	return m.ss
 }
 
@@ -1022,7 +1022,7 @@ func (c *cockroachDBTester) cockroachDBExec(cmd, ns, podName string) string {
 }
 
 func (c *cockroachDBTester) deploy(ns string) *appsv1.StatefulSet {
-	c.ss = e2esset.CreateStatefulSet(c.client, cockroachDBManifestPath, ns)
+	c.ss = e2esset.CreateSecureStatefulSet(c.client, cockroachDBManifestPath, ns)
 	framework.Logf("Deployed statefulset %v, initializing database", c.ss.Name)
 	for _, cmd := range []string{
 		"CREATE DATABASE IF NOT EXISTS foo;",

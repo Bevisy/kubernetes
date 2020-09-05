@@ -28,3 +28,8 @@ const (
 	// StatefulPodTimeout is a timeout for stateful pods to change state
 	StatefulPodTimeout = 5 * time.Minute
 )
+
+var (
+	// RuntimeClassName is the secure container runtimeclass name
+	SecureRuntimeClassName = "rune"
+)

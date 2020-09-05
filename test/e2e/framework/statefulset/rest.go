@@ -59,6 +59,31 @@ func CreateStatefulSet(c clientset.Interface, manifestPath, ns string) *appsv1.S
 	return ss
 }
 
+// CreateSecureStatefulSet creates a StatefulSet from the manifest at manifestPath in the Namespace ns with the Secure Runtimeclass using kubectl create.
+func CreateSecureStatefulSet(c clientset.Interface, manifestPath, ns string) *appsv1.StatefulSet {
+	mkpath := func(file string) string {
+		return filepath.Join(manifestPath, file)
+	}
+
+	e2efwk.Logf("Parsing statefulset from %v", mkpath("statefulset.yaml"))
+	ss, err := manifest.StatefulSetFromManifest(mkpath("statefulset.yaml"), ns)
+	ss.Spec.Template.Spec.RuntimeClassName = &SecureRuntimeClassName
+	e2efwk.ExpectNoError(err)
+	e2efwk.Logf("Parsing service from %v", mkpath("service.yaml"))
+	svc, err := manifest.SvcFromManifest(mkpath("service.yaml"))
+	e2efwk.ExpectNoError(err)
+
+	e2efwk.Logf(fmt.Sprintf("creating " + ss.Name + " service"))
+	_, err = c.CoreV1().Services(ns).Create(svc)
+	e2efwk.ExpectNoError(err)
+
+	e2efwk.Logf(fmt.Sprintf("creating statefulset %v/%v with %d replicas and selector %+v", ss.Namespace, ss.Name, *(ss.Spec.Replicas), ss.Spec.Selector))
+	_, err = c.AppsV1().StatefulSets(ns).Create(ss)
+	e2efwk.ExpectNoError(err)
+	WaitForRunningAndReady(c, *ss.Spec.Replicas, ss)
+	return ss
+}
+
 // GetPodList gets the current Pods in ss.
 func GetPodList(c clientset.Interface, ss *appsv1.StatefulSet) *v1.PodList {
 	selector, err := metav1.LabelSelectorAsSelector(ss.Spec.Selector)

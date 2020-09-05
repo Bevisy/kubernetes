@@ -39,7 +39,7 @@ import (
 // awhile to guarantee that we've been patient waiting for something ordinary
 // to happen: a pod to get scheduled and move into Ready
 const (
-	bigClusterSize    = 7
+	bigClusterSize    = 7 // Set the maximum number of nodes in the test cluster
 	schedulingTimeout = 10 * time.Minute
 )
 
