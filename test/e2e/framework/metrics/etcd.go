@@ -126,7 +126,7 @@ func getEtcdMetrics(provider string, masterHostname string) ([]*model.Sample, er
 		return nil, nil
 	}
 
-	cmd := "curl http://localhost:2379/metrics"
+	cmd := "curl -L https://localhost:2379/metrics --key /etc/ssl/etcd/ssl/admin-node-40-key.pem --cert /etc/ssl/etcd/ssl/admin-node-40.pem"
 	sshResult, err := e2essh.SSH(cmd, masterHostname+":22", provider)
 	if err != nil || sshResult.Code != 0 {
 		return nil, fmt.Errorf("unexpected error (code: %d) in ssh connection to master: %#v", sshResult.Code, err)

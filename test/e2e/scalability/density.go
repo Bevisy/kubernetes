@@ -65,9 +65,9 @@ import (
 
 const (
 	// PodStartupLatencyThreshold holds the latency threashold for pod startup
-	PodStartupLatencyThreshold = 5 * time.Second
+	PodStartupLatencyThreshold = 50 * time.Second
 	// MinSaturationThreshold holds the minimum staturation threashold
-	MinSaturationThreshold = 2 * time.Minute
+	MinSaturationThreshold = 30 * time.Minute
 	// MinPodsPerSecondThroughput holds the minimum pod/sec throughput
 	MinPodsPerSecondThroughput = 8
 	// DensityPollInterval holds the desity of polling interval

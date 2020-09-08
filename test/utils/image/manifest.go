@@ -29,6 +29,7 @@ import (
 type RegistryList struct {
 	GcAuthenticatedRegistry string `yaml:"gcAuthenticatedRegistry"`
 	DockerLibraryRegistry   string `yaml:"dockerLibraryRegistry"`
+	DockerBevisyRegistry    string `yaml:"dockerBevisyRegistry"`
 	E2eRegistry             string `yaml:"e2eRegistry"`
 	InvalidRegistry         string `yaml:"invalidRegistry"`
 	GcRegistry              string `yaml:"gcRegistry"`
@@ -65,6 +66,7 @@ func initReg() RegistryList {
 	registry := RegistryList{
 		GcAuthenticatedRegistry: "gcr.io/authenticated-image-pulling",
 		DockerLibraryRegistry:   "docker.io/library",
+		DockerBevisyRegistry:    "docker.io/bevisy",
 		E2eRegistry:             "gcr.io/kubernetes-e2e-test-images",
 		InvalidRegistry:         "invalid.com/invalid",
 		GcRegistry:              "k8s.gcr.io",
@@ -94,6 +96,7 @@ func initReg() RegistryList {
 var (
 	registry                = initReg()
 	dockerLibraryRegistry   = registry.DockerLibraryRegistry
+	dockerBevisyRegistry    = registry.DockerBevisyRegistry
 	e2eRegistry             = registry.E2eRegistry
 	e2eGcRegistry           = "gcr.io/kubernetes-e2e-test-images"
 	gcAuthenticatedRegistry = registry.GcAuthenticatedRegistry
@@ -238,7 +241,7 @@ func initImageConfigs() map[int]Config {
 	configs[Perl] = Config{dockerLibraryRegistry, "perl", "5.26"}
 	configs[PrometheusDummyExporter] = Config{gcRegistry, "prometheus-dummy-exporter", "v0.1.0"}
 	configs[PrometheusToSd] = Config{gcRegistry, "prometheus-to-sd", "v0.5.0"}
-	configs[Redis] = Config{dockerLibraryRegistry, "redis", "5.0.5-alpine"}
+	configs[Redis] = Config{dockerBevisyRegistry, "redis", "5.0.5-alpine"}
 	configs[ResourceConsumer] = Config{e2eRegistry, "resource-consumer", "1.5"}
 	configs[ResourceController] = Config{e2eRegistry, "resource-consumer-controller", "1.0"}
 	configs[SdDummyExporter] = Config{gcRegistry, "sd-dummy-exporter", "v0.2.0"}

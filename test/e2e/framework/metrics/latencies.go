@@ -53,12 +53,12 @@ const (
 	// 1-core master machines) and tests are pretty short, it may consume significant
 	// portion of CPU and basically stop all the real work.
 	// Increasing threshold to 1s is within our SLO and should solve this problem.
-	apiCallLatencyThreshold time.Duration = 1 * time.Second
+	apiCallLatencyThreshold time.Duration = 120 * time.Second
 
 	// We use a higher threshold for list apicalls if the cluster is big (i.e having > 500 nodes)
 	// as list response sizes are bigger in general for big clusters. We also use a higher threshold
 	// for list calls at cluster scope (this includes non-namespaced and all-namespaced calls).
-	apiListCallLatencyThreshold      time.Duration = 5 * time.Second
+	apiListCallLatencyThreshold      time.Duration = 120 * time.Second
 	apiClusterScopeListCallThreshold time.Duration = 10 * time.Second
 	bigClusterNodeCountThreshold                   = 500
 )
