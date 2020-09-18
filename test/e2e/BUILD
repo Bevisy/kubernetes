@@ -25,6 +25,7 @@ go_test(
         "//test/e2e/framework/viperconfig:go_default_library",
         "//test/e2e/generated:go_default_library",
         "//test/e2e/instrumentation:go_default_library",
+        "//test/e2e/kata:go_default_library",
         "//test/e2e/kubectl:go_default_library",
         "//test/e2e/lifecycle:go_default_library",
         "//test/e2e/lifecycle/bootstrap:go_default_library",
@@ -38,7 +39,6 @@ go_test(
         "//test/e2e/ui:go_default_library",
         "//test/e2e/windows:go_default_library",
         "//test/utils/image:go_default_library",
-        "//test/e2e/kata:go_default_library",
     ],
 )
 
@@ -104,6 +104,7 @@ filegroup(
         "//test/e2e/framework:all-srcs",
         "//test/e2e/generated:all-srcs",
         "//test/e2e/instrumentation:all-srcs",
+        "//test/e2e/kata:all-srcs",
         "//test/e2e/kubectl:all-srcs",
         "//test/e2e/lifecycle:all-srcs",
         "//test/e2e/manifest:all-srcs",
@@ -119,7 +120,6 @@ filegroup(
         "//test/e2e/ui:all-srcs",
         "//test/e2e/upgrades:all-srcs",
         "//test/e2e/windows:all-srcs",
-        "//test/e2e/kata:all-srcs",
     ],
     tags = ["automanaged"],
 )
