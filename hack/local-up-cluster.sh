@@ -238,6 +238,8 @@ CLUSTER_SIGNING_KEY_FILE=${CLUSTER_SIGNING_KEY_FILE:-"${ROOT_CA_KEY}"}
 # Reuse certs will skip generate new ca/cert files under CERT_DIR
 # it's useful with PRESERVE_ETCD=true because new ca will make existed service account secrets invalided
 REUSE_CERTS=${REUSE_CERTS:-false}
+# selfdefine resolv.conf
+RESOLV_CONF=${RESOLV_CONF:-"/etc/resolv_k8s.conf"}
 
 # name of the cgroup driver, i.e. cgroupfs or systemd
 if [[ ${CONTAINER_RUNTIME} == "docker" ]]; then
@@ -753,6 +755,7 @@ function start_kubelet {
       "--eviction-pressure-transition-period=${EVICTION_PRESSURE_TRANSITION_PERIOD}"
       "--pod-manifest-path=${POD_MANIFEST_PATH}"
       "--fail-swap-on=${FAIL_SWAP_ON}"
+      "--resolv-conf=${RESOLV_CONF}"
       ${auth_args[@]+"${auth_args[@]}"}
       ${dns_args[@]+"${dns_args[@]}"}
       ${cni_conf_dir_args[@]+"${cni_conf_dir_args[@]}"}
