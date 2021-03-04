@@ -826,6 +826,7 @@ func NewMainKubelet(kubeCfg *kubeletconfiginternal.KubeletConfiguration,
 
 	klet.reasonCache = NewReasonCache()
 	klet.workQueue = queue.NewBasicWorkQueue(klet.clock)
+	// 设置 kubelet.syncPod 方法为 podWorkers.syncPodFn
 	klet.podWorkers = newPodWorkers(klet.syncPod, kubeDeps.Recorder, klet.workQueue, klet.resyncInterval, backOffPeriod, klet.podCache)
 
 	klet.backOff = flowcontrol.NewBackOff(backOffPeriod, MaxContainerBackOff)
@@ -1472,6 +1473,7 @@ func (kl *Kubelet) Run(updates <-chan kubetypes.PodUpdate) {
 }
 
 // syncPod is the transaction script for the sync of a single pod.
+// syncPod 是用于同步单个 pod 的事务脚本
 //
 // Arguments:
 //
@@ -1565,7 +1567,9 @@ func (kl *Kubelet) syncPod(o syncPodOptions) error {
 		metrics.DeprecatedPodStartLatency.Observe(metrics.SinceInMicroseconds(firstSeenTime))
 	}
 
+	// 校验该 pod 是否可以运行
 	runnable := kl.canRunPod(pod)
+	// 如果不能运行，那么回写container的等待原因
 	if !runnable.Admit {
 		// Pod is not runnable; update the Pod and Container statuses to why.
 		apiPodStatus.Reason = runnable.Reason
@@ -1585,9 +1589,11 @@ func (kl *Kubelet) syncPod(o syncPodOptions) error {
 	}
 
 	// Update status in the status manager
+	// 更新状态管理器中的状态
 	kl.statusManager.SetPodStatus(pod, apiPodStatus)
 
 	// Kill pod if it should not be running
+	// 如果校验没有通过或者pod已经被删除或者pod跑状态失败，那么kill pod
 	if !runnable.Admit || pod.DeletionTimestamp != nil || apiPodStatus.Phase == v1.PodFailed {
 		var syncErr error
 		if err := kl.killPod(pod, nil, podStatus, nil); err != nil {
@@ -1605,6 +1611,7 @@ func (kl *Kubelet) syncPod(o syncPodOptions) error {
 	}
 
 	// If the network plugin is not ready, only start the pod if it uses the host network
+	// 校验网络插件是否准备好
 	if err := kl.runtimeState.networkErrors(); err != nil && !kubecontainer.IsHostNetworkPod(pod) {
 		kl.recorder.Eventf(pod, v1.EventTypeWarning, events.NetworkNotReady, "%s: %v", NetworkNotReadyErrorMsg, err)
 		return fmt.Errorf("%s: %v", NetworkNotReadyErrorMsg, err)
@@ -1612,9 +1619,11 @@ func (kl *Kubelet) syncPod(o syncPodOptions) error {
 
 	// Create Cgroups for the pod and apply resource parameters
 	// to them if cgroups-per-qos flag is enabled.
+	// 如果启用了 cgroups-per-qos 标志，则为 pod 创建 Cgroups，并将资源参数应用于它们
 	pcm := kl.containerManager.NewPodContainerManager()
 	// If pod has already been terminated then we need not create
 	// or update the pod's cgroup
+	// 校验pod是否已经被terminated
 	if !kl.podIsTerminated(pod) {
 		// When the kubelet is restarted with the cgroups-per-qos
 		// flag enabled, all the pod's running containers
@@ -1622,6 +1631,7 @@ func (kl *Kubelet) syncPod(o syncPodOptions) error {
 		// under the qos cgroup hierarchy.
 		// Check if this is the pod's first sync
 		firstSync := true
+		// 校验该pod是否是首次创建
 		for _, containerStatus := range apiPodStatus.ContainerStatuses {
 			if containerStatus.State.Running != nil {
 				firstSync = false
@@ -2033,6 +2043,7 @@ func (kl *Kubelet) dispatchWork(pod *v1.Pod, syncType kubetypes.SyncPodType, mir
 		return
 	}
 	// Run the sync in an async worker.
+	// dispatchWork会封装一个UpdatePodOptions结构体丢给podWorkers.UpdatePod去执行
 	kl.podWorkers.UpdatePod(&UpdatePodOptions{
 		Pod:        pod,
 		MirrorPod:  mirrorPod,
@@ -2064,6 +2075,7 @@ func (kl *Kubelet) handleMirrorPod(mirrorPod *v1.Pod, start time.Time) {
 // a config source.
 func (kl *Kubelet) HandlePodAdditions(pods []*v1.Pod) {
 	start := kl.clock.Now()
+	// 将pod按照创建时间排序
 	sort.Sort(sliceutils.PodsByCreationTime(pods))
 	// Responsible for checking limits in resolv.conf
 	// The limits do not have anything to do with individual pods
@@ -2076,9 +2088,10 @@ func (kl *Kubelet) HandlePodAdditions(pods []*v1.Pod) {
 		// manager as the source of truth for the desired state. If a pod does
 		// not exist in the pod manager, it means that it has been deleted in
 		// the apiserver and no action (other than cleanup) is required.
-		// 将pod添加到pod管理器中，如果有pod不存在pod管理器中，那么表示这个pod已经被删除了
+		// 将pod添加到pod管理器中，如果有pod不存在pod管理器中，那么表示这个pod已经在apiserver中被删除了，此pod只需要被清理
 		kl.podManager.AddPod(pod)
 
+		// 处理镜像pod，镜像pod指的是 static pod
 		if kubepod.IsMirrorPod(pod) {
 			kl.handleMirrorPod(pod, start)
 			continue

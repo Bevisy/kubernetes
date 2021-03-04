@@ -157,6 +157,7 @@ func newPodWorkers(syncPodFn syncPodFnType, recorder record.EventRecorder, workQ
 
 func (p *podWorkers) managePodLoop(podUpdates <-chan UpdatePodOptions) {
 	var lastSyncTime time.Time
+	// 遍历channel
 	for update := range podUpdates {
 		err := func() error {
 			podUID := update.Pod.UID
@@ -165,6 +166,7 @@ func (p *podWorkers) managePodLoop(podUpdates <-chan UpdatePodOptions) {
 			// Time. This ensures the worker doesn't start syncing until
 			// after the cache is at least newer than the finished time of
 			// the previous sync.
+			// 知道cache里面有新数据之前这里会阻塞，保证worker在cache里面有新的数据之前不会提前开始
 			status, err := p.podCache.GetNewerThan(podUID, lastSyncTime)
 			if err != nil {
 				// This is the legacy event thrown by manage pod loop
@@ -172,6 +174,7 @@ func (p *podWorkers) managePodLoop(podUpdates <-chan UpdatePodOptions) {
 				p.recorder.Eventf(update.Pod, v1.EventTypeWarning, events.FailedSync, "error determining status: %v", err)
 				return err
 			}
+			// syncPodFn 会在kubelet初始化的时候设置，调用的是kubelet的syncPod方法
 			err = p.syncPodFn(syncPodOptions{
 				mirrorPod:      update.MirrorPod,
 				pod:            update.Pod,
@@ -205,6 +208,7 @@ func (p *podWorkers) UpdatePod(options *UpdatePodOptions) {
 
 	p.podLock.Lock()
 	defer p.podLock.Unlock()
+	// 如果该pod不在podUpdates 数组中，那么创建channel，并启动异步线程
 	if podUpdates, exists = p.podUpdates[uid]; !exists {
 		// We need to have a buffer here, because checkForUpdates() method that
 		// puts an update into channel is called from the same goroutine where
@@ -222,6 +226,7 @@ func (p *podWorkers) UpdatePod(options *UpdatePodOptions) {
 			p.managePodLoop(podUpdates)
 		}()
 	}
+	// 下发更新事件
 	if !p.isWorking[pod.UID] {
 		p.isWorking[pod.UID] = true
 		podUpdates <- *options
